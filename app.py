@@ -30,8 +30,8 @@ emoji_by_color = {
     },
     "RED": {
         "circles": ["🔴"],
-        "animal1": ["🦐", "🦀"],
-        "animal2": ["🦊"],
+        "animal1": ["🦐"],
+        "animal2": ["🦀"],
         "fruits": ["🍎", "🍒"],
         "hearts": ["❤️"]
     },
