@@ -23,8 +23,8 @@ schedule = spreadsheet_beta.worksheet("Schedule")
 # --- Streamlit UI ---
 st.title("Census Emoji Message Generator")
 emoji_style = st.selectbox("Choose Emoji Style", ["circles", "animal1", "animal2", "fruits", "hearts"])
-include_orange = st.checkbox("Include Orange 🍊", value=False)
-generate = st.button("Generate Message")
+include_orange = st.checkbox("Include Orange in Round Robin 🍊", value=False)
+generate = st.button("💬  Generate Message")
 
 # --- Emoji Bank ---
 emoji_by_color = {
@@ -210,7 +210,7 @@ for name in always_include:
         pgy3_names.append(name)
 
 # --- Phone Number Section Trigger ---
-if st.button("📞 Generate Contact List"):
+if st.button("📞  Generate Contact List"):
     with st.spinner("Generating contact list..."):
         # --- Phone Lookups ---
         pgy3_phones = get_phone_numbers(pgy3_names, df_dir, threshold=70)
@@ -225,10 +225,10 @@ if st.button("📞 Generate Contact List"):
         all_numbers = list({p for p in list(seniors.values()) + list(admins.values()) + list(attendings.values()) if p != "Not found"})
         joined_numbers = ", ".join(all_numbers)
 
-    st.success("✅ Contact list ready!")
+    st.success("✅ Contact List Generated!")
 
     # --- UI Output ---
-    st.subheader("📘 Seniors on Service")
+    st.subheader("📘 Seniors")
     for name, phone in seniors.items():
         st.write(f"**{name}**: {phone}")
 
@@ -236,7 +236,7 @@ if st.button("📞 Generate Contact List"):
     for name, phone in admins.items():
         st.write(f"**{name}**: {phone}")
 
-    st.subheader("🟨 Attendings on Call")
+    st.subheader("🟨 Attendings")
     for name, phone in attendings.items():
         st.write(f"**{name}**: {phone}")
 
