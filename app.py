@@ -147,8 +147,8 @@ if st.session_state.message_generated and st.button("❌ Clear Message"):
     st.session_state.message_generated = False
 
 if st.session_state.message_generated and st.session_state.census_message:
-    st.markdown("#### 📋 Tap and hold below to copy (iOS compatible):")
-    st.text_area("Copyable message", st.session_state.census_message, height=200, label_visibility="collapsed")
+    st.markdown("**Tap and hold the box below, then choose 'Copy'**")
+    st.code(st.session_state.census_message, language="text")
 
 # --- Pull Attending Names ---
 col_m = worksheet.col_values(13)
@@ -287,5 +287,5 @@ if st.session_state.contacts_generated:
     for name, phone in st.session_state.contact_data["attendings"].items():
         st.write(f"**{name}**: {phone}")
 
-    st.markdown("#### 📋 Click to copy phone list:")
+    st.markdown("📋 **Tap and hold the box below, then choose 'Copy'**")
     st.code(st.session_state.contact_data["numbers"], language="text")
