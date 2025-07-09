@@ -24,7 +24,7 @@ schedule = spreadsheet_beta.worksheet("Schedule")
 st.title("Census Emoji Message Generator")
 emoji_style = st.selectbox("Choose Emoji Style", ["circles", "animal1", "animal2", "fruits", "hearts"])
 include_orange = st.checkbox("Include Orange in Round Robin 🍊", value=False)
-generate = st.button("💬\u00A0\Generate Message")
+generate = st.button("💬\u00A0Generate Message")
 
 # --- Emoji Bank ---
 emoji_by_color = {
@@ -210,7 +210,7 @@ for name in always_include:
         pgy3_names.append(name)
 
 # --- Phone Number Section Trigger ---
-if st.button("📞\u00A0\Generate Contact List"):
+if st.button("📞\u00A0Generate Contact List"):
     with st.spinner("Generating contact list..."):
         # --- Phone Lookups ---
         pgy3_phones = get_phone_numbers(pgy3_names, df_dir, threshold=70)
