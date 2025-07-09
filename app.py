@@ -147,8 +147,26 @@ if st.session_state.message_generated and st.button("❌ Clear Message"):
     st.session_state.message_generated = False
 
 if st.session_state.message_generated and st.session_state.census_message:
-    st.markdown("**Tap and hold the box below, then choose 'Copy'**")
-    st.code(st.session_state.census_message, language="text")
+    import streamlit.components.v1 as components
+
+    components.html(f"""
+        <div style="padding: 10px; border: 1px solid #ccc; border-radius: 10px; background: #f9f9f9; font-family: monospace;">
+            <span id="copyText">{st.session_state.contact_data["numbers"]}</span>
+            <button onclick="copyToClipboard()" style="margin-top:10px; padding:6px 10px; border:none; border-radius:6px; background-color:#4CAF50; color:white; cursor:pointer;">
+                📋 Tap to Copy
+            </button>
+        </div>
+        <script>
+            function copyToClipboard() {{
+                const text = document.getElementById("copyText").innerText;
+                navigator.clipboard.writeText(text).then(function() {{
+                    alert("Copied!");
+                }}, function(err) {{
+                    alert("Failed to copy: " + err);
+                }});
+            }}
+        </script>
+    """, height=150)
 
 # --- Pull Attending Names ---
 col_m = worksheet.col_values(13)
