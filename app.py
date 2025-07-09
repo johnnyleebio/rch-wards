@@ -147,26 +147,19 @@ if st.session_state.message_generated and st.button("❌ Clear Message"):
     st.session_state.message_generated = False
 
 if st.session_state.message_generated and st.session_state.census_message:
-    import streamlit.components.v1 as components
-
-    components.html(f"""
-        <div style="padding: 10px; border: 1px solid #ccc; border-radius: 10px; background: #f9f9f9; font-family: monospace;">
-            <span id="copyText">{st.session_state.contact_data["numbers"]}</span>
-            <button onclick="copyToClipboard()" style="margin-top:10px; padding:6px 10px; border:none; border-radius:6px; background-color:#4CAF50; color:white; cursor:pointer;">
-                📋 Tap to Copy
-            </button>
-        </div>
-        <script>
-            function copyToClipboard() {{
-                const text = document.getElementById("copyText").innerText;
-                navigator.clipboard.writeText(text).then(function() {{
-                    alert("Copied!");
-                }}, function(err) {{
-                    alert("Failed to copy: " + err);
-                }});
-            }}
-        </script>
-    """, height=150)
+    st.markdown("#### 📋 Tap anywhere in the box below to copy:")
+    st.markdown(f"""
+    <div id="copy-box-message" style="border:1px solid #ccc; padding:10px; border-radius:8px; background-color:#f9f9f9; cursor:pointer;">
+        <pre>{st.session_state.census_message}</pre>
+    </div>
+    <script>
+    const msgBox = document.getElementById('copy-box-message');
+    msgBox.addEventListener('click', function() {{
+        navigator.clipboard.writeText(`{st.session_state.census_message}`);
+        alert("✅ Copied to clipboard!");
+    }});
+    </script>
+    """, unsafe_allow_html=True)
 
 # --- Pull Attending Names ---
 col_m = worksheet.col_values(13)
@@ -305,5 +298,16 @@ if st.session_state.contacts_generated:
     for name, phone in st.session_state.contact_data["attendings"].items():
         st.write(f"**{name}**: {phone}")
 
-    st.markdown("📋 **Tap and hold the box below, then choose 'Copy'**")
-    st.code(st.session_state.contact_data["numbers"], language="text")
+    st.markdown("#### 📋 Tap anywhere below to copy phone numbers:")
+    st.markdown(f"""
+    <div id="copy-box-contacts" style="border:1px solid #ccc; padding:10px; border-radius:8px; background-color:#f9f9f9; cursor:pointer;">
+        <pre>{st.session_state.contact_data["numbers"]}</pre>
+    </div>
+    <script>
+    const contactBox = document.getElementById('copy-box-contacts');
+    contactBox.addEventListener('click', function() {{
+        navigator.clipboard.writeText(`{st.session_state.contact_data["numbers"]}`);
+        alert("✅ Copied to clipboard!");
+    }});
+    </script>
+    """, unsafe_allow_html=True)
