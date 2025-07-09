@@ -87,6 +87,12 @@ team_name_map = {
     "long": "Lead",
 }
 
+# --- Session state setup for message ---
+if "census_message" not in st.session_state:
+    st.session_state.census_message = ""
+if "message_generated" not in st.session_state:
+    st.session_state.message_generated = False
+
 if generate:
     col_m = worksheet.col_values(13)
     col_n = worksheet.col_values(14)
@@ -111,7 +117,7 @@ if generate:
             elif color == "ORANGE" and include_orange:
                 team = "Orange"
             else:
-                continue  # skip if no valid team
+                continue
 
             emoji_list = emoji_by_color.get(color, {}).get(emoji_style, [])
             if emoji_list:
@@ -126,22 +132,26 @@ if generate:
             st.error(f"Error parsing row: {e}")
 
     team_entries.sort(
-    key=lambda x: team_order.index(x["team"]) if x["team"] in team_order else 99
-)
+        key=lambda x: team_order.index(x["team"]) if x["team"] in team_order else 99
+    )
 
     message = "Good morning! Please confirm census:\n\n"
     for entry in team_entries:
         message += f"{entry['emoji']} {entry['team']}/{entry['doctor']}: {entry['census']}\n"
 
-    # st.text_area("Generated Message", message, height=200)
-    # st.download_button("Download Message as TXT", message, file_name="census_message.txt")
-    # Editable message box
-    # editable_message = st.text_area("Generated Message (Editable)", message, height=200)
-    
-    # Copyable code block with built-in copy button
-    st.markdown("#### Click to copy:")
-    st.code(message, language="text")
+    # Save in session state
+    st.session_state.census_message = message
+    st.session_state.message_generated = True
 
+# --- Clear button for message ---
+if st.session_state.message_generated and st.button("❌ Clear Message"):
+    st.session_state.census_message = ""
+    st.session_state.message_generated = False
+
+# --- Display message if available ---
+if st.session_state.message_generated and st.session_state.census_message:
+    st.markdown("#### 💬 Click to copy message:")
+    st.code(st.session_state.census_message, language="text")
 # --- Pull Attending Names ---
 col_m = worksheet.col_values(13)
 col_n = worksheet.col_values(14)
