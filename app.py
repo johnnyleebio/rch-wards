@@ -162,8 +162,9 @@ if st.session_state.message_generated and st.button("❌ Clear Message"):
 
 # --- Display message if available ---
 if st.session_state.message_generated and st.session_state.census_message:
-    st.markdown("#### 📋 Tap below to copy census message (iOS compatible):")
-    st.text_input("Tap and hold to copy", value=st.session_state.census_message, label_visibility="collapsed")
+    st.markdown("#### 📋 Tap and hold below to copy (iOS compatible):")
+    st.text_area("Copyable message", st.session_state.census_message, height=200, label_visibility="collapsed")
+    
 # --- Pull Attending Names ---
 col_m = worksheet.col_values(13)
 col_n = worksheet.col_values(14)
