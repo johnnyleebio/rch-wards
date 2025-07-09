@@ -251,7 +251,7 @@ if st.button("📞 Generate Contact List"):
         attendings = {n: p for n, p in attending_phones.items() if n not in seniors and n not in admins}
 
         all_numbers = list({p for p in list(seniors.values()) + list(admins.values()) + list(attendings.values()) if p != "Not found"})
-        joined_numbers = ",\u200B ".join(all_numbers)
+        joined_numbers = "; ".join(all_numbers)
 
         st.session_state.contacts_generated = True
         st.session_state.contact_data = {
