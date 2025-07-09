@@ -240,4 +240,6 @@ if st.button("📞 Generate Contact List"):
     for name, phone in attendings.items():
         st.write(f"**{name}**: {phone}")
 
-    st.text_input("📋 Copy phone list to paste in Messages", value=joined_numbers)
+    # Replace the text_input section with this:
+    st.markdown("#### 📋 Click to copy phone list:")
+    st.code(joined_numbers, language="text")
