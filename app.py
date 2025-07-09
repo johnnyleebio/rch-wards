@@ -106,65 +106,58 @@ if "message_generated" not in st.session_state:
     st.session_state.message_generated = False
 
 if generate:
-    col_m = worksheet.col_values(13)
-    col_n = worksheet.col_values(14)
-    col_o = worksheet.col_values(15)
-    team_entries = []
+    st.session_state.is_loading = True
+    with st.spinner("Generating message..."):
+        col_m = worksheet.col_values(13)
+        col_n = worksheet.col_values(14)
+        col_o = worksheet.col_values(15)
+        team_entries = []
 
-    for m, n, o in zip(col_m, col_n, col_o):
-        try:
-            if ":" not in m:
-                continue
-            color_part, census_part = m.split(":")
-            color = color_part.strip().upper()
-            if not o.strip().endswith("CALL") and not (color == "ORANGE" and include_orange):
-                continue
-            census = int(census_part.strip())
-            doctor = n.split("|")[0].strip()
-            team = None
-            team_parts = o.strip().split()
-            if team_parts:
-                raw_team = team_parts[0].lower()
-                team = team_name_map.get(raw_team, raw_team.capitalize())
-            elif color == "ORANGE" and include_orange:
-                team = "Orange"
-            else:
-                continue
+        for m, n, o in zip(col_m, col_n, col_o):
+            try:
+                if ":" not in m:
+                    continue
+                color_part, census_part = m.split(":")
+                color = color_part.strip().upper()
+                if not o.strip().endswith("CALL") and not (color == "ORANGE" and include_orange):
+                    continue
+                census = int(census_part.strip())
+                doctor = n.split("|")[0].strip()
+                team = None
+                team_parts = o.strip().split()
+                if team_parts:
+                    raw_team = team_parts[0].lower()
+                    team = team_name_map.get(raw_team, raw_team.capitalize())
+                elif color == "ORANGE" and include_orange:
+                    team = "Orange"
+                else:
+                    continue
 
-            emoji_list = emoji_by_color.get(color, {}).get(emoji_style, [])
-            if emoji_list:
-                emoji = random.choice(emoji_list)
-                team_entries.append({
-                    "team": team,
-                    "doctor": doctor,
-                    "census": census,
-                    "emoji": emoji
-                })
-        except Exception as e:
-            st.error(f"Error parsing row: {e}")
+                emoji_list = emoji_by_color.get(color, {}).get(emoji_style, [])
+                if emoji_list:
+                    emoji = random.choice(emoji_list)
+                    team_entries.append({"team": team, "doctor": doctor, "census": census, "emoji": emoji})
+            except Exception as e:
+                st.error(f"Error parsing row: {e}")
 
-    team_entries.sort(
-        key=lambda x: team_order.index(x["team"]) if x["team"] in team_order else 99
-    )
+        team_entries.sort(key=lambda x: team_order.index(x["team"]) if x["team"] in team_order else 99)
 
-    message = "Good morning! Please confirm census:\n\n"
-    for entry in team_entries:
-        message += f"{entry['emoji']} {entry['team']}/{entry['doctor']}: {entry['census']}\n"
+        message = "Good morning! Please confirm census:\n\n"
+        for entry in team_entries:
+            message += f"{entry['emoji']} {entry['team']}/{entry['doctor']}: {entry['census']}\n"
 
-    # Save in session state
-    st.session_state.census_message = message
-    st.session_state.message_generated = True
+        st.session_state.census_message = message
+        st.session_state.message_generated = True
+    st.session_state.is_loading = False
 
-# --- Clear button for message ---
 if st.session_state.message_generated and st.button("❌ Clear Message"):
     st.session_state.census_message = ""
     st.session_state.message_generated = False
 
-# --- Display message if available ---
 if st.session_state.message_generated and st.session_state.census_message:
     st.markdown("#### 📋 Tap and hold below to copy (iOS compatible):")
     st.text_area("Copyable message", st.session_state.census_message, height=200, label_visibility="collapsed")
-    
+
 # --- Pull Attending Names ---
 col_m = worksheet.col_values(13)
 col_n = worksheet.col_values(14)
