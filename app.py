@@ -222,7 +222,13 @@ for name in always_include:
         pgy3_names.append(name)
 
 # --- Phone Number Section Trigger ---
-if st.button("📞\u00A0Generate Contact List"):
+# --- Phone Number Section Trigger ---
+if "contacts_generated" not in st.session_state:
+    st.session_state.contacts_generated = False
+if "contact_data" not in st.session_state:
+    st.session_state.contact_data = {}
+
+if st.button("📞 Generate Contact List"):
     with st.spinner("Generating contact list..."):
         # --- Phone Lookups ---
         pgy3_phones = get_phone_numbers(pgy3_names, df_dir, threshold=70)
@@ -237,21 +243,34 @@ if st.button("📞\u00A0Generate Contact List"):
         all_numbers = list({p for p in list(seniors.values()) + list(admins.values()) + list(attendings.values()) if p != "Not found"})
         joined_numbers = ", ".join(all_numbers)
 
+        st.session_state.contacts_generated = True
+        st.session_state.contact_data = {
+            "seniors": seniors,
+            "admins": admins,
+            "attendings": attendings,
+            "numbers": joined_numbers
+        }
+
+# --- Clear Button ---
+if st.session_state.contacts_generated and st.button("❌ Clear Contact List"):
+    st.session_state.contacts_generated = False
+    st.session_state.contact_data = {}
+
+# --- Display Section ---
+if st.session_state.contacts_generated:
     st.success("✅ Contact List Generated!")
 
-    # --- UI Output ---
     st.subheader("📘 Seniors")
-    for name, phone in seniors.items():
+    for name, phone in st.session_state.contact_data["seniors"].items():
         st.write(f"**{name}**: {phone}")
 
     st.subheader("🏛️ Admin / Operations")
-    for name, phone in admins.items():
+    for name, phone in st.session_state.contact_data["admins"].items():
         st.write(f"**{name}**: {phone}")
 
     st.subheader("🟨 Attendings")
-    for name, phone in attendings.items():
+    for name, phone in st.session_state.contact_data["attendings"].items():
         st.write(f"**{name}**: {phone}")
 
-    # Replace the text_input section with this:
     st.markdown("#### 📋 Click to copy phone list:")
-    st.code(joined_numbers, language="text")
+    st.code(st.session_state.contact_data["numbers"], language="text")
