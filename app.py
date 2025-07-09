@@ -147,19 +147,8 @@ if st.session_state.message_generated and st.button("❌ Clear Message"):
     st.session_state.message_generated = False
 
 if st.session_state.message_generated and st.session_state.census_message:
-    st.markdown("#### 📋 Tap anywhere in the box below to copy:")
-    st.markdown(f"""
-    <div id="copy-box-message" style="border:1px solid #ccc; padding:10px; border-radius:8px; background-color:#f9f9f9; cursor:pointer;">
-        <pre>{st.session_state.census_message}</pre>
-    </div>
-    <script>
-    const msgBox = document.getElementById('copy-box-message');
-    msgBox.addEventListener('click', function() {{
-        navigator.clipboard.writeText(`{st.session_state.census_message}`);
-        alert("✅ Copied to clipboard!");
-    }});
-    </script>
-    """, unsafe_allow_html=True)
+    st.markdown("📋 **Tap and hold the box below, then choose 'Copy'**")
+    st.code(st.session_state.census_message, language="text")
 
 # --- Pull Attending Names ---
 col_m = worksheet.col_values(13)
@@ -298,16 +287,5 @@ if st.session_state.contacts_generated:
     for name, phone in st.session_state.contact_data["attendings"].items():
         st.write(f"**{name}**: {phone}")
 
-    st.markdown("#### 📋 Tap anywhere below to copy phone numbers:")
-    st.markdown(f"""
-    <div id="copy-box-contacts" style="border:1px solid #ccc; padding:10px; border-radius:8px; background-color:#f9f9f9; cursor:pointer;">
-        <pre>{st.session_state.contact_data["numbers"]}</pre>
-    </div>
-    <script>
-    const contactBox = document.getElementById('copy-box-contacts');
-    contactBox.addEventListener('click', function() {{
-        navigator.clipboard.writeText(`{st.session_state.contact_data["numbers"]}`);
-        alert("✅ Copied to clipboard!");
-    }});
-    </script>
-    """, unsafe_allow_html=True)
+    st.markdown("📋 **Tap and hold the box below, then choose 'Copy'**")
+    st.code(st.session_state.contact_data["numbers"], language="text")
