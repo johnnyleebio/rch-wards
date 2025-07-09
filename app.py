@@ -147,7 +147,7 @@ if st.session_state.message_generated and st.button("❌ Clear Message"):
     st.session_state.message_generated = False
 
 if st.session_state.message_generated and st.session_state.census_message:
-    st.markdown("📋 **Tap and hold the box below, then choose 'Copy'**")
+    st.markdown("📋 **Tap on the upper right hand corner to copy**")
     st.code(st.session_state.census_message, language="text")
 
 # --- Pull Attending Names ---
@@ -254,7 +254,7 @@ if contact_btn:
             p for p in list(seniors.values()) + list(admins.values()) + list(attendings.values())
             if p != "Not found"
         })
-        joined_numbers = "; ".join(all_numbers)
+        joined_numbers = ", ".join(all_numbers)
 
         st.session_state.contacts_generated = True
         st.session_state.contact_data = {
@@ -287,5 +287,5 @@ if st.session_state.contacts_generated:
     for name, phone in st.session_state.contact_data["attendings"].items():
         st.write(f"**{name}**: {phone}")
 
-    st.markdown("📋 **Tap and hold the box below, then choose 'Copy'**")
+    st.markdown("📋 **Tap on the upper right hand corner to copy**")
     st.code(st.session_state.contact_data["numbers"], language="text")
