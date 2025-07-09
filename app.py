@@ -83,7 +83,8 @@ team_name_map = {
     "short": "Short",
     "med": "Medium",
     "medium": "Medium",
-    "lead": "Lead"
+    "lead": "Lead",
+    "long": "Lead",
 }
 
 if generate:
