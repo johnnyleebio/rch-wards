@@ -3,6 +3,9 @@ import gspread
 import json
 from oauth2client.service_account import ServiceAccountCredentials
 import random
+import pandas as pd
+import datetime
+from rapidfuzz import process, fuzz
 
 # --- Google Sheets Setup ---
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
@@ -12,6 +15,10 @@ client = gspread.authorize(creds)
 spreadsheet_url = st.secrets["GSHEET"]
 spreadsheet = client.open_by_url(spreadsheet_url)
 worksheet = spreadsheet.worksheet("ADMITS")
+spreadsheet_url_beta = st.secrets["GSHEET_BETA"]
+spreadsheet_beta = client.open_by_url(spreadsheet_url_beta)
+directory = spreadsheet_beta.worksheet("Directory")
+schedule = spreadsheet_beta.worksheet("Schedule")
 
 # --- Streamlit UI ---
 st.title("Census Emoji Message Generator")
@@ -122,3 +129,115 @@ if generate:
     # Copyable code block with built-in copy button
     st.markdown("#### Click to copy:")
     st.code(message, language="text")
+
+# --- Pull Attending Names ---
+col_m = worksheet_admit.col_values(13)
+col_n = worksheet_admit.col_values(14)
+col_o = worksheet_admit.col_values(15)
+
+attending_names = set()
+for m, n, o in zip(col_m, col_n, col_o):
+    try:
+        if not m.strip() or ":" not in m:
+            continue
+        color_part, _ = m.split(":")
+        color = color_part.strip().upper()
+        if not o.strip().endswith("CALL") and color != "ORANGE":
+            continue
+        name = n.split("|")[0].strip()
+        if name:
+            attending_names.add(name)
+    except:
+        continue
+
+# --- Load Schedule and Directory ---
+df_schedule = pd.DataFrame(schedule.get_all_values())
+df_dir = pd.DataFrame(directory.get_all_values())
+df_dir.columns = df_dir.iloc[0]
+df_dir = df_dir.drop(index=0).reset_index(drop=True)
+df_dir.columns = [col.strip() for col in df_dir.columns]
+df_dir['FullName'] = (df_dir['First'].astype(str).str.strip() + " " + df_dir['Last'].astype(str).str.strip()).str.lower()
+
+# --- Helper to get phone numbers ---
+def get_phone_numbers(name_list, df, threshold=90):
+    phones = {}
+    for name in name_list:
+        name_clean = name.strip().lower()
+        if name_clean in df['FullName'].values:
+            idx = df[df['FullName'] == name_clean].index[0]
+            phones[name] = df.loc[idx, 'Phone']
+        else:
+            best_match = process.extractOne(name_clean, df['FullName'], scorer=fuzz.partial_ratio)
+            if best_match and best_match[1] >= threshold:
+                idx = df[df['FullName'] == best_match[0]].index[0]
+                phones[name] = df.loc[idx, 'Phone']
+            else:
+                phones[name] = "Not found"
+    return phones
+
+# --- Identify Week Block ---
+today = datetime.date.today()
+section_starts = []
+for i, val in enumerate(df_schedule.iloc[:, 0]):
+    try:
+        date_val = pd.to_datetime(val, errors='coerce').date()
+        if pd.notnull(date_val):
+            section_starts.append((i, date_val))
+    except:
+        continue
+
+target_start_row = None
+for i, date_val in section_starts:
+    if date_val <= today <= date_val + datetime.timedelta(days=6):
+        target_start_row = i
+        break
+
+# --- Get PGY2/PGY3 Names ---
+pgy3_names, pgy2_names = [], []
+if target_start_row is not None:
+    week_block = df_schedule.iloc[target_start_row:target_start_row + 8]
+    pgy3_row = week_block[week_block.iloc[:, 1] == "PGY3"]
+    pgy2_row = week_block[week_block.iloc[:, 1] == "PGY2"]
+    pgy3_names = pgy3_row.iloc[0, 2:6].dropna().tolist() if not pgy3_row.empty else []
+    pgy2_names = pgy2_row.iloc[0, 2:6].dropna().tolist() if not pgy2_row.empty else []
+    pgy3_names = [n.strip() for n in pgy3_names if n.strip()]
+    pgy2_names = [n.strip() for n in pgy2_names if n.strip()]
+
+# --- Include Admins ---
+always_include = ['Sahar Eivaz', 'Lawren Green']
+for name in always_include:
+    if name not in pgy3_names and name not in pgy2_names:
+        pgy3_names.append(name)
+
+# --- Phone Number Section Trigger ---
+if st.button("📞 Generate Contact List"):
+    with st.spinner("Generating contact list..."):
+        # --- Phone Lookups ---
+        pgy3_phones = get_phone_numbers(pgy3_names, df_dir, threshold=70)
+        pgy2_phones = get_phone_numbers(pgy2_names, df_dir, threshold=70)
+        attending_phones = get_phone_numbers(attending_names, df_dir, threshold=70)
+
+        admin_names = {'Sahar Eivaz', 'Lawren Green'}
+        seniors = {n: p for n, p in {**pgy3_phones, **pgy2_phones}.items() if n not in admin_names}
+        admins = {n: p for n, p in {**pgy3_phones, **pgy2_phones}.items() if n in admin_names}
+        attendings = {n: p for n, p in attending_phones.items() if n not in seniors and n not in admins}
+
+        all_numbers = list({p for p in list(seniors.values()) + list(admins.values()) + list(attendings.values()) if p != "Not found"})
+        joined_numbers = ", ".join(all_numbers)
+
+    st.success("✅ Contact list ready!")
+
+    # --- UI Output ---
+    st.subheader("📘 Seniors on Service")
+    for name, phone in seniors.items():
+        st.write(f"**{name}**: {phone}")
+
+    st.subheader("🏛️ Admin / Operations")
+    for name, phone in admins.items():
+        st.write(f"**{name}**: {phone}")
+
+    st.subheader("🟨 Attendings on Call")
+    for name, phone in attendings.items():
+        st.write(f"**{name}**: {phone}")
+
+    st.text_input("📋 Copy phone list to paste in Messages", value=joined_numbers)
