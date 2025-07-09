@@ -41,14 +41,6 @@ emoji_style = emoji_style_options[selected_label]  # actual key to use
 include_orange = st.checkbox("Include Orange in Round Robin 🍊", value=False)
 generate = st.button("💬 Generate Message", disabled=st.session_state.is_loading)
 
-if generate:
-    st.session_state.is_loading = True
-    with st.spinner("Generating message..."):
-        # your message generation logic...
-        st.session_state.census_message = message
-        st.session_state.message_generated = True
-    st.session_state.is_loading = False
-
 # --- Emoji Bank ---
 emoji_by_color = {
     "GREEN": {
