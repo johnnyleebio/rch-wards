@@ -269,7 +269,7 @@ if st.session_state.contacts_generated and st.button("❌ Clear Contact List"):
 # --- Display Section ---
 if st.session_state.contacts_generated:
     today_str = datetime.date.today().strftime("%B %d, %Y")  # e.g., July 8, 2025
-    st.success(f"✅ Contact List Generated! ({today_str})")
+    st.markdown(f"✅ **Contact List Generated!** ({today_str})")
 
     st.subheader("📘 Seniors")
     for name, phone in st.session_state.contact_data["seniors"].items():
