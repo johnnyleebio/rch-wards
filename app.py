@@ -7,6 +7,10 @@ import pandas as pd
 import datetime
 from rapidfuzz import process, fuzz
 
+# --- Loading Protocol --- 
+if "is_loading" not in st.session_state:
+    st.session_state.is_loading = False
+
 # --- Google Sheets Setup ---
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
 creds_dict = json.loads(st.secrets["GOOGLE_CREDENTIALS"])
@@ -35,7 +39,15 @@ emoji_style_options = {
 selected_label = st.selectbox("Choose Emoji Style", list(emoji_style_options.keys()))
 emoji_style = emoji_style_options[selected_label]  # actual key to use
 include_orange = st.checkbox("Include Orange in Round Robin 🍊", value=False)
-generate = st.button("💬\u00A0Generate Message")
+generate = st.button("💬 Generate Message", disabled=st.session_state.is_loading)
+
+if generate:
+    st.session_state.is_loading = True
+    with st.spinner("Generating message..."):
+        # your message generation logic...
+        st.session_state.census_message = message
+        st.session_state.message_generated = True
+    st.session_state.is_loading = False
 
 # --- Emoji Bank ---
 emoji_by_color = {
@@ -232,13 +244,15 @@ for name in always_include:
         pgy3_names.append(name)
 
 # --- Phone Number Section Trigger ---
-# --- Phone Number Section Trigger ---
 if "contacts_generated" not in st.session_state:
     st.session_state.contacts_generated = False
 if "contact_data" not in st.session_state:
     st.session_state.contact_data = {}
 
-if st.button("📞 Generate Contact List"):
+contact_btn = st.button("📞 Generate Contact List", disabled=st.session_state.is_loading)
+
+if contact_btn:
+    st.session_state.is_loading = True
     with st.spinner("Generating contact list..."):
         # --- Phone Lookups ---
         pgy3_phones = get_phone_numbers(pgy3_names, df_dir, threshold=70)
@@ -250,7 +264,10 @@ if st.button("📞 Generate Contact List"):
         admins = {n: p for n, p in {**pgy3_phones, **pgy2_phones}.items() if n in admin_names}
         attendings = {n: p for n, p in attending_phones.items() if n not in seniors and n not in admins}
 
-        all_numbers = list({p for p in list(seniors.values()) + list(admins.values()) + list(attendings.values()) if p != "Not found"})
+        all_numbers = list({
+            p for p in list(seniors.values()) + list(admins.values()) + list(attendings.values())
+            if p != "Not found"
+        })
         joined_numbers = "; ".join(all_numbers)
 
         st.session_state.contacts_generated = True
@@ -260,6 +277,7 @@ if st.button("📞 Generate Contact List"):
             "attendings": attendings,
             "numbers": joined_numbers
         }
+    st.session_state.is_loading = False
 
 # --- Clear Button ---
 if st.session_state.contacts_generated and st.button("❌ Clear Contact List"):
@@ -269,7 +287,7 @@ if st.session_state.contacts_generated and st.button("❌ Clear Contact List"):
 # --- Display Section ---
 if st.session_state.contacts_generated:
     today_str = datetime.date.today().strftime("%B %d, %Y")  # e.g., July 8, 2025
-    st.markdown(f"✅ **Contact List Generated!** ({today_str})")
+    st.success(f"✅ Contact List Generated! ({today_str})") # date function is broken
 
     st.subheader("📘 Seniors")
     for name, phone in st.session_state.contact_data["seniors"].items():
