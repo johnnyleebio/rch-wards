@@ -22,7 +22,18 @@ schedule = spreadsheet_beta.worksheet("Schedule")
 
 # --- Streamlit UI ---
 st.title("Census Emoji Message Generator")
-emoji_style = st.selectbox("Choose Emoji Style", ["circles", "animal1", "animal2", "fruits", "hearts"])
+# Display name to internal key mapping
+emoji_style_options = {
+    "Circles": "circles",
+    "Animal [Set 1]": "animal1",
+    "Animal [Set 2]": "animal2",
+    "Fruits": "fruits",
+    "Hearts": "hearts"
+}
+
+# Select with friendly labels
+selected_label = st.selectbox("Choose Emoji Style", list(emoji_style_options.keys()))
+emoji_style = emoji_style_options[selected_label]  # actual key to use
 include_orange = st.checkbox("Include Orange in Round Robin 🍊", value=False)
 generate = st.button("💬\u00A0Generate Message")
 
