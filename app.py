@@ -183,11 +183,7 @@ if st.session_state.message_generated and st.session_state.census_message:
     st.markdown("📋 **Tap on the upper right hand corner of the box to copy** ‼️")
     st.code(st.session_state.census_message, language="text")
 
-# --- Pull Attending Names ---
-col_m = worksheet.col_values(13)
-col_n = worksheet.col_values(14)
-col_o = worksheet.col_values(15)
-
+# --- Pull Attending Names (respects include_orange checkbox) ---
 attending_names = set()
 for m, n, o in zip(col_m, col_n, col_o):
     try:
@@ -195,8 +191,14 @@ for m, n, o in zip(col_m, col_n, col_o):
             continue
         color_part, _ = m.split(":")
         color = color_part.strip().upper()
-        if not o.strip().endswith("CALL") and color != "ORANGE":
+
+        # Respect "Include Orange" toggle
+        is_orange = color == "ORANGE"
+        is_on_call = o.strip().endswith("CALL")
+
+        if not is_on_call and not (include_orange and is_orange):
             continue
+
         name = n.split("|")[0].strip()
         if name:
             attending_names.add(name)
