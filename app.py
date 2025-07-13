@@ -6,6 +6,31 @@ import random
 import pandas as pd
 import datetime
 from rapidfuzz import process, fuzz
+import hashlib
+
+# Password protection
+def hash_password(password):
+    return hashlib.sha256(password.encode()).hexdigest()
+
+PASSWORD_HASH = hash_password(st.secrets["PASSWORD"])  
+
+if "authenticated" not in st.session_state:
+    st.session_state.authenticated = False
+
+if not st.session_state.authenticated:
+    with st.form("login_form"):
+        st.markdown("### 🔐 Login")
+        password_input = st.text_input("Enter Password", type="password")
+        submitted = st.form_submit_button("Login")
+
+        if submitted:
+            if hash_password(password_input) == PASSWORD_HASH:
+                st.session_state.authenticated = True
+                st.success("✅ Logged in successfully")
+                st.experimental_rerun()
+            else:
+                st.error("❌ Incorrect password")
+    st.stop()
 
 # --- Loading Protocol --- 
 if "is_loading" not in st.session_state:
@@ -142,9 +167,9 @@ if generate:
         st.session_state.message_generated = True
     st.session_state.is_loading = False
 
-if st.session_state.message_generated and st.button("❌ Clear Message"):
-    st.session_state.census_message = ""
-    st.session_state.message_generated = False
+# if st.session_state.message_generated and st.button("❌ Clear Message"):
+#     st.session_state.census_message = ""
+#     st.session_state.message_generated = False
 
 if st.session_state.message_generated and st.session_state.census_message:
     st.markdown("📋 **Tap on the upper right hand corner of the box to copy** ‼️")
@@ -266,9 +291,9 @@ if contact_btn:
     st.session_state.is_loading = False
 
 # --- Clear Button ---
-if st.session_state.contacts_generated and st.button("❌ Clear Contact List"):
-    st.session_state.contacts_generated = False
-    st.session_state.contact_data = {}
+# if st.session_state.contacts_generated and st.button("❌ Clear Contact List"):
+#     st.session_state.contacts_generated = False
+#     st.session_state.contact_data = {}
 
 # --- Display Section ---
 if st.session_state.contacts_generated:
