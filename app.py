@@ -321,7 +321,7 @@ if st.session_state.contacts_generated:
     for name, phone in st.session_state.contact_data["admins"].items():
         st.write(f"**{name}**: {phone}")
 
-    st.subheader("🟨 Attendings")
+    st.subheader("😎 Attendings")
     for name, phone in st.session_state.contact_data["attendings"].items():
         st.write(f"**{name}**: {phone}")
 
