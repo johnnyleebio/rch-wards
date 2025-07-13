@@ -191,11 +191,10 @@ for m, n, o in zip(col_m, col_n, col_o):
             continue
         color_part, _ = m.split(":")
         color = color_part.strip().upper()
-
-        # Respect "Include Orange" toggle
         is_orange = color == "ORANGE"
         is_on_call = o.strip().endswith("CALL")
 
+        # Only include if CALL or (orange and checkbox is checked)
         if not is_on_call and not (include_orange and is_orange):
             continue
 
