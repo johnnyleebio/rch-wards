@@ -17,7 +17,7 @@ PASSWORD_HASH = hash_password(st.secrets["PASSWORD"])
 if "authenticated" not in st.session_state:
     st.session_state.authenticated = False
 
-if not st.session_state.authenticated:
+if not st.session_state.get("authenticated", False):
     with st.form("login_form"):
         st.markdown("### 🔐 Login")
         password_input = st.text_input("Enter Password", type="password")
@@ -27,10 +27,10 @@ if not st.session_state.authenticated:
             if hash_password(password_input) == PASSWORD_HASH:
                 st.session_state.authenticated = True
                 st.success("✅ Logged in successfully")
-                st.experimental_rerun()
+                st.experimental_rerun()  # <-- safe here inside the form submission
             else:
                 st.error("❌ Incorrect password")
-    st.stop()
+    st.stop()  # Stop execution if not authenticated
 
 # --- Loading Protocol --- 
 if "is_loading" not in st.session_state:
