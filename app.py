@@ -8,16 +8,22 @@ import datetime
 from rapidfuzz import process, fuzz
 import hashlib
 
-# Password protection
+import streamlit as st
+import hashlib
+
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
 
-PASSWORD_HASH = hash_password(st.secrets["PASSWORD"])  
+PASSWORD_HASH = hash_password(st.secrets["PASSWORD"])
 
+# Session setup
 if "authenticated" not in st.session_state:
     st.session_state.authenticated = False
+if "trigger_rerun" not in st.session_state:
+    st.session_state.trigger_rerun = False
 
-if not st.session_state.get("authenticated", False):
+# Password gate
+if not st.session_state.authenticated:
     with st.form("login_form"):
         st.markdown("### 🔐 Login")
         password_input = st.text_input("Enter Password", type="password")
@@ -26,12 +32,16 @@ if not st.session_state.get("authenticated", False):
         if submitted:
             if hash_password(password_input) == PASSWORD_HASH:
                 st.session_state.authenticated = True
-                st.success("✅ Logged in successfully")
-                st.experimental_rerun()  # <-- safe here inside the form submission
+                st.session_state.trigger_rerun = True
             else:
                 st.error("❌ Incorrect password")
-    st.stop()  # Stop execution if not authenticated
+    st.stop()
 
+# Safe rerun trigger
+if st.session_state.trigger_rerun:
+    st.session_state.trigger_rerun = False
+    st.experimental_rerun()
+    
 # --- Loading Protocol --- 
 if "is_loading" not in st.session_state:
     st.session_state.is_loading = False
