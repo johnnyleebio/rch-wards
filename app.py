@@ -19,8 +19,6 @@ PASSWORD_HASH = hash_password(st.secrets["PASSWORD"])
 # Session setup
 if "authenticated" not in st.session_state:
     st.session_state.authenticated = False
-if "trigger_rerun" not in st.session_state:
-    st.session_state.trigger_rerun = False
 
 # Password gate
 if not st.session_state.authenticated:
@@ -37,8 +35,8 @@ if not st.session_state.authenticated:
                 st.error("❌ Incorrect password")
     st.stop()
 
-# Safe rerun trigger
-if st.session_state.trigger_rerun:
+# Trigger re-run safe deployment
+if "trigger_rerun" not in st.session_state:
     st.session_state.trigger_rerun = False
     st.experimental_rerun()
     
