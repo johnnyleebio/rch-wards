@@ -72,6 +72,7 @@ emoji_style_options = {
 selected_label = st.selectbox("Choose Emoji Style", list(emoji_style_options.keys()))
 emoji_style = emoji_style_options[selected_label]  # actual key to use
 include_orange = st.checkbox("Include Orange in Round Robin 🍊", value=False)
+include_pgy1_interns = st.checkbox("Include Categorical Interns 💪", value=False)
 generate = st.button("💬 Generate Message", disabled=st.session_state.is_loading)
 
 # --- Emoji Bank ---
@@ -261,6 +262,21 @@ if target_start_row is not None:
     pgy3_names = [n.strip() for n in pgy3_names if n.strip()]
     pgy2_names = [n.strip() for n in pgy2_names if n.strip()]
 
+# --- Get PGY1 Names (optional interns) ---
+pgy1_names = []
+if target_start_row is not None:
+    pgy1_row = df_schedule.iloc[target_start_row:target_start_row + 8]
+    pgy1_row = pgy1_row[pgy1_row.iloc[:, 1] == "PGY1"]
+
+    if not pgy1_row.empty:
+        raw_pgy1 = pgy1_row.iloc[0, 2:8].dropna().tolist()
+        for name in raw_pgy1:
+            if any(bad in name.lower() for bad in ["ty", "neuro", "anes", "anesthesia"]):
+                continue
+            cleaned = name.replace(":", "").strip()
+            if cleaned:
+                pgy1_names.append(cleaned)
+
 # --- Include Admins ---
 always_include = ['Sahar Eivaz', 'Lawren Green']
 for name in always_include:
@@ -283,13 +299,21 @@ if contact_btn:
         pgy2_phones = get_phone_numbers(pgy2_names, df_dir, threshold=70)
         attending_phones = get_phone_numbers(attending_names, df_dir, threshold=70)
 
+        # Optional interns
+        intern_phones = {}
+        if include_pgy1_interns:
+            intern_phones = get_phone_numbers(pgy1_names, df_dir, threshold=70)
+
         admin_names = {'Sahar Eivaz', 'Lawren Green'}
         seniors = {n: p for n, p in {**pgy3_phones, **pgy2_phones}.items() if n not in admin_names}
         admins = {n: p for n, p in {**pgy3_phones, **pgy2_phones}.items() if n in admin_names}
         attendings = {n: p for n, p in attending_phones.items() if n not in seniors and n not in admins}
 
         all_numbers = list({
-            p for p in list(seniors.values()) + list(admins.values()) + list(attendings.values())
+            p for p in list(seniors.values()) +
+                          list(admins.values()) +
+                          list(attendings.values()) +
+                          list(intern_phones.values())
             if p != "Not found"
         })
         joined_numbers = ", ".join(all_numbers)
@@ -299,6 +323,7 @@ if contact_btn:
             "seniors": seniors,
             "admins": admins,
             "attendings": attendings,
+            "interns": intern_phones,
             "numbers": joined_numbers
         }
     st.session_state.is_loading = False
@@ -315,6 +340,10 @@ if st.session_state.contacts_generated:
 
     st.subheader("📘 Seniors")
     for name, phone in st.session_state.contact_data["seniors"].items():
+        st.write(f"**{name}**: {phone}")
+
+    st.subheader("🧑‍⚕️ Interns (PGY1)")
+    for name, phone in st.session_state.contact_data["interns"].items():
         st.write(f"**{name}**: {phone}")
 
     st.subheader("🏛️ Admin / Operations")
