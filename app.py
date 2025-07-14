@@ -249,7 +249,7 @@ for i, val in enumerate(df_schedule.iloc[:, 0]):
 
 target_start_row = None
 for i, date_val in section_starts:
-    if date_val <= today <= date_val + datetime.timedelta(days=6):
+    if date_val <= today <= date_val + timedelta(days=6):
         target_start_row = i
         break
 
