@@ -32,10 +32,10 @@ if not st.session_state.authenticated:
             st.error("❌ Incorrect password")
     st.stop()
 
-# Safe rerun after login
-if "trigger_rerun" not in st.session_state:
-    st.session_state.trigger_rerun = False
-    st.experimental_rerun()
+# Safe rerun after login (deprecated)
+# if "trigger_rerun" not in st.session_state:
+#     st.session_state.trigger_rerun = False
+#     st.experimental_rerun()
     
 # --- Loading Protocol --- 
 if "is_loading" not in st.session_state:
