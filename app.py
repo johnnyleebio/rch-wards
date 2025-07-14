@@ -33,7 +33,7 @@ if not st.session_state.authenticated:
     st.stop()
 
 # Safe rerun after login
-if st.session_state.get("trigger_rerun", False):
+if "trigger_rerun" not in st.session_state:
     st.session_state.trigger_rerun = False
     st.experimental_rerun()
     
