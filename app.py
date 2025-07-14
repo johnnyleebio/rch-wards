@@ -11,7 +11,7 @@ import hashlib
 
 # Convert UTC to your local timezone (e.g. America/Los_Angeles)
 local_time = datetime.now(ZoneInfo("America/Los_Angeles"))
-st.write("Local time:", local_time)
+st.write("Local Time:", local_time)
 
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
