@@ -267,17 +267,20 @@ if target_start_row is not None:
 # --- Get PGY1 Names (optional interns) ---
 pgy1_names = []
 if target_start_row is not None:
-    pgy1_row = df_schedule.iloc[target_start_row:target_start_row + 8]
-    pgy1_row = pgy1_row[pgy1_row.iloc[:, 1] == "PGY1"]
+    week_block = df_schedule.iloc[target_start_row:target_start_row + 8]
+    pgy1_rows = week_block[week_block.iloc[:, 1] == "PGY1"]
 
-    if not pgy1_row.empty:
-        raw_pgy1 = pgy1_row.iloc[0, 2:8].dropna().tolist()
-        for name in raw_pgy1:
-            if any(bad in name.lower() for bad in ["ty", "neuro", "anes", "anesthesia"]):
+    for _, row in pgy1_rows.iterrows():
+        # Columns C to H (indexes 2 to 7); we skip G (6) and H (7)
+        for i, name in enumerate(row[2:8]):
+            col_index = i + 2  # Actual column index in the full row
+            if col_index in [6, 7]:  # Skip columns G and H
                 continue
-            cleaned = name.replace(":", "").strip()
-            if cleaned:
-                pgy1_names.append(cleaned)
+            name = str(name).strip()
+            if not name or any(bad in name.lower() for bad in ["ty", "neuro", "anes", "anesthesia"]):
+                continue
+            name = name.replace(":", "")
+            pgy1_names.append(name)
 
 # --- Include Admins ---
 always_include = ['Sahar Eivaz', 'Lawren Green']
