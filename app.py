@@ -237,7 +237,7 @@ def get_phone_numbers(name_list, df, threshold=90):
     return phones
 
 # --- Identify Week Block ---
-today = date.today()
+today = local_time.date()
 section_starts = []
 for i, val in enumerate(df_schedule.iloc[:, 0]):
     try:
@@ -337,7 +337,7 @@ if contact_btn:
 
 # --- Display Section ---
 if st.session_state.contacts_generated:
-    today_str = date.today().strftime("%B %d, %Y")  # e.g., July 8, 2025
+    today_str = today.strftime("%B %d, %Y")  # use the same `today` from above  # e.g., July 8, 2025
     st.success(f"✅ Contact List Generated! ({today_str})") # date function is broken
 
     st.subheader("📘 Seniors")
