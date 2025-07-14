@@ -46,6 +46,19 @@ if "trigger_rerun" not in st.session_state:
 if "is_loading" not in st.session_state:
     st.session_state.is_loading = False
 
+# Example: Retry loading worksheet up to 3 times
+def safe_open_worksheet(spreadsheet, sheet_name, retries=3, delay=5):
+    for attempt in range(retries):
+        try:
+            return spreadsheet.worksheet(sheet_name)
+        except gspread.exceptions.APIError as e:
+            if attempt < retries - 1:
+                time.sleep(delay)
+            else:
+                st.error("❌ Google Sheets API failed after too many attempts in a short period.")
+                st.warning("Please try again in a few seconds or refresh the page.")
+                st.stop()
+
 # --- Google Sheets Setup ---
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
 creds_dict = json.loads(st.secrets["GOOGLE_CREDENTIALS"])
@@ -53,11 +66,11 @@ creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
 client = gspread.authorize(creds)
 spreadsheet_url = st.secrets["GSHEET"]
 spreadsheet = client.open_by_url(spreadsheet_url)
-worksheet = spreadsheet.worksheet("ADMITS")
+worksheet = safe_open_worksheet(spreadsheet, "ADMITS")
 spreadsheet_url_beta = st.secrets["GSHEET_BETA"]
 spreadsheet_beta = client.open_by_url(spreadsheet_url_beta)
-directory = spreadsheet_beta.worksheet("Directory")
-schedule = spreadsheet_beta.worksheet("Schedule")
+directory = safe_open_worksheet(spreadsheet_beta, "Directory")
+schedule = safe_open_worksheet(spreadsheet_beta, "Schedule")
 
 # --- Streamlit UI ---
 st.title("RCH - Lead")
