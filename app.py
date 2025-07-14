@@ -8,9 +8,6 @@ import datetime
 from rapidfuzz import process, fuzz
 import hashlib
 
-import streamlit as st
-import hashlib
-
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
 
@@ -35,8 +32,8 @@ if not st.session_state.authenticated:
                 st.error("❌ Incorrect password")
     st.stop()
 
-# Trigger re-run safe deployment
-if "trigger_rerun" not in st.session_state:
+# Safe rerun after login
+if st.session_state.get("trigger_rerun", False):
     st.session_state.trigger_rerun = False
     st.experimental_rerun()
     
