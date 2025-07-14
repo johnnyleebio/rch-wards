@@ -25,7 +25,7 @@ if "authenticated" not in st.session_state:
 # Password gate - still needs double tap
 if not st.session_state.authenticated:
     with st.form("login_form"):
-        st.markdown("### 🔐 RCH - Lead | Login")
+        st.markdown("### 🔐 RCH - Lead | Login\n‼️ You may need to tap the login button.")
         password_input = st.text_input("Enter Password", type="password")
         submitted = st.form_submit_button("Login")
 
