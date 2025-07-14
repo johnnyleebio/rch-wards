@@ -4,9 +4,14 @@ import json
 from oauth2client.service_account import ServiceAccountCredentials
 import random
 import pandas as pd
-import datetime
+from datetime import datetime
+from zoneinfo import ZoneInfo
 from rapidfuzz import process, fuzz
 import hashlib
+
+# Convert UTC to your local timezone (e.g. America/Los_Angeles)
+local_time = datetime.now(ZoneInfo("America/Los_Angeles"))
+st.write("Local time:", local_time)
 
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
@@ -55,7 +60,7 @@ directory = spreadsheet_beta.worksheet("Directory")
 schedule = spreadsheet_beta.worksheet("Schedule")
 
 # --- Streamlit UI ---
-st.title("Census Emoji Message Generator")
+st.title("RCH - Lead")
 # Display name to internal key mapping
 emoji_style_options = {
     "Circles": "circles",
@@ -69,7 +74,7 @@ emoji_style_options = {
 selected_label = st.selectbox("Choose Emoji Style", list(emoji_style_options.keys()))
 emoji_style = emoji_style_options[selected_label]  # actual key to use
 include_orange = st.checkbox("Include Orange in Round Robin 🍊", value=False)
-include_pgy1_interns = st.checkbox("Include Categorical Interns 💪", value=False)
+include_pgy1_interns = st.checkbox("Include Categorical Interns 💪 (Beta)", value=False)
 generate = st.button("💬 Generate Message", disabled=st.session_state.is_loading)
 
 # --- Emoji Bank ---
