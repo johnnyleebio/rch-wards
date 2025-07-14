@@ -19,7 +19,7 @@ if "authenticated" not in st.session_state:
 if "trigger_rerun" not in st.session_state:
     st.session_state.trigger_rerun = False
 
-# Login form
+# --- Login Form ---
 if not st.session_state.authenticated:
     with st.form("login_form"):
         st.markdown("### 🔐 Login")
@@ -29,12 +29,13 @@ if not st.session_state.authenticated:
     if submitted:
         if hash_password(password_input) == PASSWORD_HASH:
             st.session_state.authenticated = True
-            st.session_state.trigger_rerun = True  # Flag rerun
+            st.session_state.trigger_rerun = True  # mark rerun
         else:
             st.error("❌ Incorrect password")
+
     st.stop()
 
-# Trigger safe rerun AFTER form submission and session state is ready
+# --- Trigger Safe Rerun ---
 if st.session_state.trigger_rerun:
     st.session_state.trigger_rerun = False
     st.experimental_rerun()
