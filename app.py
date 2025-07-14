@@ -87,7 +87,7 @@ emoji_style_options = {
 selected_label = st.selectbox("Choose Emoji Style", list(emoji_style_options.keys()))
 emoji_style = emoji_style_options[selected_label]  # actual key to use
 include_orange = st.checkbox("Include Orange in Round Robin 🍊", value=False)
-include_pgy1_interns = st.checkbox("Include Categorical Interns 💪 (Beta)", value=False)
+include_pgy1_interns = st.checkbox("Include Categorical Interns 💪", value=False)
 generate = st.button("💬 Generate Message", disabled=st.session_state.is_loading)
 
 # --- Emoji Bank ---
