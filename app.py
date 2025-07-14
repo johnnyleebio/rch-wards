@@ -268,19 +268,26 @@ if target_start_row is not None:
 pgy1_names = []
 if target_start_row is not None:
     week_block = df_schedule.iloc[target_start_row:target_start_row + 8]
-    pgy1_rows = week_block[week_block.iloc[:, 1] == "PGY1"]
+    
+    # Find the index where "PGY1" is first mentioned in column B
+    pgy1_start_idx = None
+    for i, val in enumerate(week_block.iloc[:, 1]):
+        if val.strip() == "PGY1":
+            pgy1_start_idx = i
+            break
 
-    for _, row in pgy1_rows.iterrows():
-        # Columns C to H (indexes 2 to 7); we skip G (6) and H (7)
-        for i, name in enumerate(row[2:8]):
-            col_index = i + 2  # Actual column index in the full row
-            if col_index in [6, 7]:  # Skip columns G and H
-                continue
-            name = str(name).strip()
-            if not name or any(bad in name.lower() for bad in ["ty", "neuro", "anes", "anesthesia"]):
-                continue
-            name = name.replace(":", "")
-            pgy1_names.append(name)
+    if pgy1_start_idx is not None:
+        # Take 3 rows: PGY1 label + 2 following
+        pgy1_block = week_block.iloc[pgy1_start_idx:pgy1_start_idx + 3]
+
+        for _, row in pgy1_block.iterrows():
+            # Use columns C–F (index 2 to 5); skip G/H (6/7)
+            for col_index in range(2, 6):
+                name = str(row.iloc[col_index]).strip()
+                if not name or any(bad in name.lower() for bad in ["ty", "neuro", "anes", "anesthesia"]):
+                    continue
+                name = name.replace(":", "")
+                pgy1_names.append(name)
 
 # --- Include Admins ---
 always_include = ['Sahar Eivaz', 'Lawren Green']
