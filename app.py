@@ -16,21 +16,28 @@ PASSWORD_HASH = hash_password(st.secrets["PASSWORD"])
 # Session setup
 if "authenticated" not in st.session_state:
     st.session_state.authenticated = False
+if "trigger_rerun" not in st.session_state:
+    st.session_state.trigger_rerun = False
 
+# Login form
 if not st.session_state.authenticated:
     with st.form("login_form"):
         st.markdown("### 🔐 Login")
         password_input = st.text_input("Enter Password", type="password")
         submitted = st.form_submit_button("Login")
 
-    # Handle submission **outside** the form block
     if submitted:
         if hash_password(password_input) == PASSWORD_HASH:
             st.session_state.authenticated = True
-            st.experimental_rerun()
+            st.session_state.trigger_rerun = True  # Flag rerun
         else:
             st.error("❌ Incorrect password")
     st.stop()
+
+# Trigger safe rerun AFTER form submission and session state is ready
+if st.session_state.trigger_rerun:
+    st.session_state.trigger_rerun = False
+    st.experimental_rerun()
 
 # Safe rerun after login (deprecated)
 # if "trigger_rerun" not in st.session_state:
