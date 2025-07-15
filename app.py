@@ -76,6 +76,14 @@ schedule = safe_open_worksheet(spreadsheet, "Wards")
 
 # --- Streamlit UI ---
 st.title("RCH - Lead")
+st.markdown(
+    """
+    _Please make sure the following sheets are up to date on the Admit Tracker:_  
+    • **ADMITS**  
+    • **Directory**  
+    • **Wards**
+    """
+)
 # Display name to internal key mapping
 emoji_style_options = {
     "Circles": "circles",
