@@ -67,10 +67,12 @@ client = gspread.authorize(creds)
 spreadsheet_url = st.secrets["GSHEET"]
 spreadsheet = client.open_by_url(spreadsheet_url)
 worksheet = safe_open_worksheet(spreadsheet, "ADMITS")
-spreadsheet_url_beta = st.secrets["GSHEET_BETA"]
-spreadsheet_beta = client.open_by_url(spreadsheet_url_beta)
-directory = safe_open_worksheet(spreadsheet_beta, "Directory")
-schedule = safe_open_worksheet(spreadsheet_beta, "Schedule")
+#spreadsheet_url_beta = st.secrets["GSHEET_BETA"]
+#spreadsheet_beta = client.open_by_url(spreadsheet_url_beta)
+#directory = safe_open_worksheet(spreadsheet_beta, "Directory")
+#schedule = safe_open_worksheet(spreadsheet_beta, "Schedule")
+directory = safe_open_worksheet(spreadsheet, "Directory")
+schedule = safe_open_worksheet(spreadsheet, "Wards")
 
 # --- Streamlit UI ---
 st.title("RCH - Lead")
