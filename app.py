@@ -78,7 +78,7 @@ schedule = safe_open_worksheet(spreadsheet, "Wards")
 st.title("RCH - Lead")
 st.markdown(
     """
-    _Please make sure the following sheets are up to date on the Admit Tracker:_  
+    ‼️ Please make sure the following sheets are up to date on the Admit Tracker:  
     • **ADMITS**  
     • **Directory**  
     • **Wards**
