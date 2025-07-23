@@ -159,9 +159,17 @@ if "message_generated" not in st.session_state:
 if generate:
     st.session_state.is_loading = True
     with st.spinner("Generating message..."):
-        col_m = worksheet.col_values(12)
-        col_n = worksheet.col_values(13)
-        col_o = worksheet.col_values(14)
+        headers = worksheet.row_values(2)
+        
+        try:
+            green_index = headers.index("Green") + 1  # gspread uses 1-based indexing
+        except ValueError:
+            raise ValueError("❌ 'Green' column not found in row 2")
+    
+        col_m = worksheet.col_values(green_index)        # "Green"
+        col_n = worksheet.col_values(green_index + 1)    # next column
+        col_o = worksheet.col_values(green_index + 2)    # column after that
+
         team_entries = []
 
         for m, n, o in zip(col_m, col_n, col_o):
@@ -210,9 +218,16 @@ if st.session_state.message_generated and st.session_state.census_message:
     st.code(st.session_state.census_message, language="text")
 
 # --- Pull Attending Names (respects include_orange checkbox) ---
-col_m = worksheet.col_values(12)
-col_n = worksheet.col_values(13)
-col_o = worksheet.col_values(14)
+headers = worksheet.row_values(2)
+        
+try:
+    green_index = headers.index("Green") + 1  # gspread uses 1-based indexing
+except ValueError:
+    raise ValueError("❌ 'Green' column not found in row 2")
+
+col_m = worksheet.col_values(green_index)        # "Green"
+col_n = worksheet.col_values(green_index + 1)    # next column
+col_o = worksheet.col_values(green_index + 2)    # column after that
 
 attending_names = set()
 for m, n, o in zip(col_m, col_n, col_o):
