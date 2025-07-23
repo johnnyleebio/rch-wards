@@ -210,9 +210,9 @@ if st.session_state.message_generated and st.session_state.census_message:
     st.code(st.session_state.census_message, language="text")
 
 # --- Pull Attending Names (respects include_orange checkbox) ---
-col_m = worksheet.col_values(13)
-col_n = worksheet.col_values(14)
-col_o = worksheet.col_values(15)
+col_m = worksheet.col_values(12)
+col_n = worksheet.col_values(13)
+col_o = worksheet.col_values(14)
 
 attending_names = set()
 for m, n, o in zip(col_m, col_n, col_o):
