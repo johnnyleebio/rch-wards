@@ -159,12 +159,17 @@ if "message_generated" not in st.session_state:
 if generate:
     st.session_state.is_loading = True
     with st.spinner("Generating message..."):
-        headers = worksheet.row_values(2)
+        raw_headers = worksheet.row_values(2)
+        green_index = None
         
-        try:
-            green_index = headers.index("Green") + 1  # gspread uses 1-based indexing
-        except ValueError:
-            raise ValueError("❌ 'Green' column not found in row 2")
+        for idx, val in enumerate(raw_headers):
+            if "green" in val.lower():
+                green_index = idx + 1  # gspread is 1-based
+                break
+        
+        if green_index is None:
+            st.error("❌ No column found with 'green' in the header (row 2).")
+            st.stop()
     
         col_m = worksheet.col_values(green_index)        # "Green"
         col_n = worksheet.col_values(green_index + 1)    # next column
@@ -218,12 +223,17 @@ if st.session_state.message_generated and st.session_state.census_message:
     st.code(st.session_state.census_message, language="text")
 
 # --- Pull Attending Names (respects include_orange checkbox) ---
-headers = worksheet.row_values(2)
-        
-try:
-    green_index = headers.index("Green") + 1  # gspread uses 1-based indexing
-except ValueError:
-    raise ValueError("❌ 'Green' column not found in row 2")
+raw_headers = worksheet.row_values(2)
+green_index = None
+
+for idx, val in enumerate(raw_headers):
+    if "green" in val.lower():
+        green_index = idx + 1  # gspread is 1-based
+        break
+
+if green_index is None:
+    st.error("❌ No column found with 'green' in the header (row 2).")
+    st.stop()
 
 col_m = worksheet.col_values(green_index)        # "Green"
 col_n = worksheet.col_values(green_index + 1)    # next column
