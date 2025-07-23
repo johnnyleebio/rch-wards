@@ -159,9 +159,9 @@ if "message_generated" not in st.session_state:
 if generate:
     st.session_state.is_loading = True
     with st.spinner("Generating message..."):
-        col_m = worksheet.col_values(13)
-        col_n = worksheet.col_values(14)
-        col_o = worksheet.col_values(15)
+        col_m = worksheet.col_values(12)
+        col_n = worksheet.col_values(13)
+        col_o = worksheet.col_values(14)
         team_entries = []
 
         for m, n, o in zip(col_m, col_n, col_o):
